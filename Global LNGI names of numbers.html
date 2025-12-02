@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html>
+<title>Numbers increasing</title>
+<style>
+#bar1 {
+  width: 100%;
+  background-color: #333;
+}
+
+#bar2 {
+  width: 0%;
+  height: 30px;
+  background-color: #888;
+}
+
+.n0 {
+  color: #fff;
+  text-shadow:
+    0 0 10px #ccc,
+    0 0 20px #ddd,
+    0 0 40px #fff,
+    0 0 64px #fff,
+    0 0 128px #fff;
+}
+.n1 {
+  color: #fff;
+  text-shadow:
+    0 0 10px #ff0,
+    0 0 20px #ff6,
+    0 0 40px #ff9,
+    0 0 64px #ffc,
+    0 0 128px #fff;
+}
+.n2 {
+  color: #fff;
+  text-shadow:
+    0 0 10px #0f0,
+    0 0 20px #6f6,
+    0 0 40px #9f9,
+    0 0 64px #cfc,
+    0 0 128px #fff;
+}
+.n3 {
+  color: #fff;
+  text-shadow:
+    0 0 10px #39f,
+    0 0 20px #6cf,
+    0 0 40px #9ff,
+    0 0 64px #fff,
+    0 0 128px #fff;
+}
+.n4 {
+  color: #fff;
+  text-shadow:
+    0 0 10px #f3f,
+    0 0 20px #f6f,
+    0 0 40px #f9f,
+    0 0 64px #fff,
+    0 0 128px #fff;
+}
+.n5 {
+  color: #fff;
+  text-shadow:
+    0 0 10px #f33,
+    0 0 20px #f66,
+    0 0 40px #f99,
+    0 0 64px #fcc,
+    0 0 128px #fff;
+}
+</style>
+<body>
+<div id="bar1">
+  <div id="bar2"></div>
+</div>
+<div><font color="white" id="progressPercent"></font></div>
+<div><font color="white" id="timeSpent">Loading...</font></div>
+
+<p> </p>
+<center><p id="aa1"></p></center>
+<p id="aa2"></p>
+<script>
+document.body.style.backgroundColor = "black";
+var t = 0;
+var speedMultiplier = 0;
+
+// remove when done
+function pa1() {start_date-=1e3;end_date = start_date + 12 * 365.25 * 864e5}
+function pb1() {start_date+=1e3;end_date = start_date + 12 * 365.25 * 864e5}
+function pa2() {start_date-=6e4;end_date = start_date + 12 * 365.25 * 864e5}
+function pb2() {start_date+=6e4;end_date = start_date + 12 * 365.25 * 864e5}
+function pa3() {start_date-=36e5;end_date = start_date + 12 * 365.25 * 864e5}
+function pb3() {start_date+=36e5;end_date = start_date + 12 * 365.25 * 864e5}
+function pa4() {start_date-=864e5;end_date = start_date + 12 * 365.25 * 864e5}
+function pb4() {start_date+=864e5;end_date = start_date + 12 * 365.25 * 864e5}
+
+function tier0number(num) { // number from 0 to 999
+	var ones = ["","one","two","three","four","five","six","seven","eight","nine"];
+	var teens = ["ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+	var tens = ["","ten","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+	var numberName = "";
+	num = Math.floor(num);
+	if (num > 999 || num < 0) {
+		return "";
+	}
+	if (num >= 100) {
+		numberName += ones[Math.floor(num/100)] + " hundred ";
+	}
+	if (num%100 >= 20) {
+		numberName += tens[Math.floor((num%100)/10)];
+		if (num%10 != 0) {
+			numberName += "-" + ones[num%10];
+		}
+	} else if (num%100 >= 10) {
+		numberName += teens[num%10];
+	} else if (num != 0) {
+		numberName += ones[num%10];
+	} else {
+		numberName = "zero";
+	}
+	
+	return numberName.trim();
+}
+function tier1illion(num) { // number from 0 to 999, 1=million, 2=billion, etc.
+	var ones = ["","m","b","tr","quadr","quint","sext","sept","oct","non"];
+	var ones2 = ["","un","duo","tre","quattuor","quin","sex","septen","octo","novem"];
+	var tens = ["","dec","vigint","trigint","quadragint","quinquagint","sexagint","septuagint","octogint","nonagint"];
+	var hundreds = ["","cent","ducent","trecent","quadringent","quingent","sescent","septingent","octingent","nongent"];
+	var numberName = "";
+	num = Math.floor(num);
+	if (num > 999 || num < 0) {
+		return "";
+	}
+	if (num >= 100) {
+		if (num%100 >= 10) {
+			numberName += ones2[num%10] + tens[Math.floor((num%100)/10)] + "i" + hundreds[Math.floor(num/100)];
+		} else if (num == 101) {
+			numberName = "cenunt";
+		} else if (num == 103) {
+			numberName = "centret";
+		} else {
+			numberName += ones2[num%10] + hundreds[Math.floor(num/100)];
+		}
+	} else if (num >= 10) {
+		numberName += ones2[num%10] + tens[Math.floor((num%100)/10)];
+	} else {
+		numberName += ones[num];
+	}
+	if (num == 0) {
+		return "thousand";
+	} else {
+		return numberName + "illion";
+	}
+}
+function tier1illionPrefix(num, vers) { // illion from 0 to 999, vers=0, use m,b,t for 1,2,3, vers=1 use un,duo,tre, vers=2 ignore "un" like so we have micrillion instead of unmicrillion
+	var ones = ["","m","b","tr","quadr","quint","sext","sept","oct","non"];
+	var ones2 = ["","un","duo","tre","quattuor","quin","sex","septen","octo","novem"];
+	var tens = ["","dec","vigint","trigint","quadragint","quinquagint","sexagint","septuagint","octogint","nonagint"];
+	var hundreds = ["","cent","ducent","trecent","quadringent","quingent","sescent","septingent","octingent","nongent"];
+	var numberName = "";
+	num = Math.floor(num);
+	if (num > 999 || num < 0) {
+		return "";
+	}
+	if (num >= 100) {
+		if (num%100 >= 10) {
+			numberName += ones2[num%10] + tens[Math.floor((num%100)/10)] + "i" + hundreds[Math.floor(num/100)];
+		} else if (num == 101) {
+			numberName = "cenunt";
+		} else if (num == 103) {
+			numberName = "centret";
+		} else {
+			numberName += ones2[num%10] + hundreds[Math.floor(num/100)];
+		}
+		if (vers == 2) {numberName += "i"}
+	} else if (num >= 10) {
+		numberName += ones2[num%10] + tens[Math.floor((num%100)/10)];
+		if (vers == 2) {numberName += "i"}
+	} else if (vers == 2 && num == 1) {
+		return "";
+	} else if (vers > 0) {
+		numberName += ones2[num];
+	} else {
+		numberName += ones[num];
+	}
+	return numberName;	
+}
+function tier1number(logNum) {
+	var numberName = "";
+	var num = 0;
+	if (logNum >= 3003) {
+		return "";
+	}
+	if (logNum < 15) {
+		num = Math.floor(10**logNum);
+		numArray = [num%1000, Math.floor((num/1000)%1000), Math.floor((num/1e6)%1000), Math.floor((num/1e9)%1000), Math.floor((num/1e12)%1000)];
+		if (numArray[4] > 0) {numberName += tier0number(numArray[4]) + " <font class=\"n1\">trillion</font><br>"}
+		if (numArray[3] > 0) {numberName += tier0number(numArray[3]) + " <font class=\"n1\">billion</font><br>"}
+		if (numArray[2] > 0) {numberName += tier0number(numArray[2]) + " <font class=\"n1\">million</font><br>"}
+		if (numArray[1] > 0) {numberName += tier0number(numArray[1]) + " <font class=\"n1\">thousand</font><br>"}
+		if (numArray[0] > 0) {numberName += tier0number(numArray[0])}
+	} else { // 1e15 to 1e3003
+		num = Math.floor(10**(logNum%3 + 9));
+		numArray = [num%1000, Math.floor((num/1000)%1000), Math.floor((num/1e6)%1000), Math.floor((num/1e9)%1000)]
+		for (i=3; i>=(logNum>=63?1:0); i--) {
+			if (numArray[i] > 0) {numberName += tier0number(numArray[i]) + " <font class=\"n1\">" + tier1illion(Math.floor((logNum-12)/3+i)) + "</font><br>"}
+		}
+		
+	}
+	return numberName.trim();
+}
+function tier2illionPrefix(num, vers) {
+// vers = 0: right before illion, 1: tier-1 separator, 2: tier-2 separator
+	var ones = ["","milli","micro","nano","pico","femto","atto","zepto","yocto","ronto"];
+	var ones2 = ["","mill","micr","nan","pic","femt","att","zept","yoct","ront"];
+	var ones3 = ["","me","due","trio","tetre","pente","hexe","hepte","octe","enne"];
+	var teens = ["quect","mec","duec","trec","tetrec","pentec","hexec","heptec","octec","ennec"];
+	var tens = ["","","icos","triacont","tetracont","pentacont","hexacont","heptacont","octacont","ennacont"];
+	var hundreds = ["","hect","dohect","triahect","tetrahect","pentahect","hexahect","heptahect","octahect","ennahect"];
+	var numberName = "";
+	num = Math.floor(num);
+	if (num > 999 || num < 0) {
+		return "";
+	}
+	if (num >= 100) {
+		if (Math.floor((num/10)%10) == 1) {
+			numberName += (num%10==0?"vec":teens[num%10]) + "e" + hundreds[Math.floor(num/100)];
+		} else if (Math.floor((num/10)%10) == 0) {
+			numberName += ones3[num%10] + hundreds[Math.floor(num/100)];
+		} else {
+			numberName += ones3[num%10] + tens[Math.floor((num/10)%10)] + "e" + hundreds[Math.floor(num/100)];
+		}
+		if (vers == 1) {numberName += "o"};
+		if (vers == 2) {numberName += "e"};
+	} else if (num >= 20) {
+		numberName += ones3[num%10] + tens[Math.floor((num/10)%10)];
+		if (vers == 1) {numberName += "o"};
+		if (vers == 2) {numberName += "e"};
+	} else if (num >= 10) {
+		numberName += teens[num%10];
+		if (vers == 1) {numberName += "o"};
+		if (vers == 2) {numberName += "e"};
+	} else {
+		if (vers == 0) {
+			numberName += ones2[num];
+		} else if (vers == 1) {
+			numberName += ones[num];
+		} else if (vers == 2 && num > 1) {
+			numberName += ones2[num] + "e";
+		}
+	}
+	return numberName.trim();
+}
+function tier2number(loglogNum) {
+	var numberName = "";
+	var logIllionNumber = 0;
+	var logNum = 0;
+	if (loglogNum < 20) {
+		logIllionNumber = Math.log10(10**loglogNum/3-1);
+	} else {
+		logIllionNumber = loglogNum - Math.log10(3);	
+	}
+	if (logIllionNumber >= 3000) {
+		return "";
+	}
+	if (logIllionNumber < 12) {
+		var illionNumber = Math.floor(10**logIllionNumber);
+		logNum = 3*10**logIllionNumber+3;
+		numArray = [Math.floor((10**(logNum%3)*1000)%1000), Math.floor(10**(logNum%3))];
+		if (illionNumber >= 1e6) {k=0} else {k=1};
+		for (i=0; i<=k; i++) {
+			if (numArray[1-i] > 0) {
+			illionArray = [illionNumber%1000, Math.floor((illionNumber/1000)%1000), Math.floor((illionNumber/1e6)%1000), Math.floor((illionNumber/1e9)%1000)];
+			numberName += tier0number(numArray[1-i]) + "<br>";
+			if (illionArray[3] > 0) {
+				if (illionNumber%1e9 == 0) {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(illionArray[3], 2) + "</font><font class=\"n2\">nan</font>";
+				} else {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(illionArray[3], 2) + "</font><font class=\"n2\">nano-</font>";
+				}
+			}
+			if (illionArray[2] > 0) {
+				if (illionNumber%1e6 == 0) {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(illionArray[2], 2) + "</font><font class=\"n2\">micr</font>";
+				} else {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(illionArray[2], 2) + "</font><font class=\"n2\">micro-</font>";
+				}
+			}
+			if (illionArray[1] > 0) {
+				if (illionNumber%1e3 == 0) {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(illionArray[1], 2) + "</font><font class=\"n2\">mill</font>";
+				} else {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(illionArray[1], 2) + "</font><font class=\"n2\">milli-</font>";
+				}
+			}
+			if (illionArray[0] > 0) {
+				numberName += "<font class=\"n1\">" + (illionArray[0]>3 ? tier1illionPrefix(illionArray[0], 0) : ["unt","duot","tret"][illionArray[0]-1]) + "</font>";
+			}
+			numberName += "<font class=\"n1\">illion</font><br>";
+			illionNumber--;
+			}
+		}
+	} else { // illion number > 1T
+		numberName += "one ";
+		highestTier2illion = Math.floor(logIllionNumber/3);
+		numArray = [Math.floor(10**(logIllionNumber%3+9)%1000), Math.floor(10**(logIllionNumber%3+6)%1000), Math.floor(10**(logIllionNumber%3+3)%1000), Math.floor(10**(logIllionNumber%3))];
+		if ((numArray[0] == 0 || highestTier2illion >= 20) && numArray[1] == 0 && numArray[2] == 0) {
+			numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[3], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion, 0) + "</font>";
+		} else {
+			numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[3], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion, 1) + "-</font>";
+		}
+		if (numArray[2] != 0) {
+			if ((numArray[0] == 0 || highestTier2illion >= 20) && numArray[1] == 0) {
+				numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[2], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion-1, 0) + "</font>";
+			} else {
+				numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[2], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion-1, 1) + "-</font>";
+			}
+		}
+		if (highestTier2illion < 20) { // < icosillion
+			if (numArray[1] != 0) {
+				if (numArray[0] == 0) {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[1], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion-2, 0) + "</font>";
+				} else {
+					numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[1], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion-2, 1) + "-</font>";
+				}
+			}
+			if (numArray[0] != 0) {
+				numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[0], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion-3, 0) + "</font>";
+			}
+		} else {
+			if (numArray[1] != 0) {
+				numberName += "<font class=\"n1\">" + tier1illionPrefix(numArray[1], 2) + "</font><font class=\"n2\">" + tier2illionPrefix(highestTier2illion-2, 0) + "</font>";
+			}
+		}
+		numberName += "<font class=\"n1\">illion</font>";
+	}
+	return numberName.trim();
+}
+function tier3illionPrefix(num, vers) {
+// vers = 0: right before illion, 1: tier-2 separator, 2: tier-3 separator, 3: after kal
+	var ones = ["","kill","meg","gig","ter","pet","ex","zett","yott","ronn","quett"];
+	var ones2 = ["k","ken","cod","ctr","cter","cpet","kect","czet","kyot","cron"]; // for ik-, trak-, tek-
+	var ones3 = ["t","ten","tod","tr","ter","pet","tect","zet","yot","ron"]; // for ho-, bo-
+	var ones4 = ["","","d","tr","t","p","ex","z","y","n"] // for kal-, mej-, gij
+	var ones5 = ["","en","od","tr","ter","pet","ect","zet","yot","ron"]; // after kal-
+	var teens = ["dak","hend","dok","tradak","tedak","pedak","exdak","zedak","yodak","nedak"];
+	var teens2 = ["dak","tend","dok","tradak","tedak","pedak","texdak","zedak","yodak","nedak"]; // for ho-, bo-
+	var tens = ["","","i","tra","te","pe","exa","za","yo","ne"];
+	var tens2 = ["","","ti","tra","te","pe","texa","za","yo","ne"]; // for ho-, bo-
+	var hundreds = ["","ho","bo","tro","to","po","exo","zo","yoo","no"];
+	var numberName = "";
+	num = Math.floor(num);
+	if (num > 999 || num <= 0) {
+		return "";
+	}
+	if (num >= 100) {
+		if (num%100 >= 20) {
+			numberName += hundreds[Math.floor(num/100)] + tens2[Math.floor((num/10)%10)] + ones2[num%10];
+		} else if (num%100 >= 10) {
+			numberName += hundreds[Math.floor(num/100)] + teens2[num%10];
+		} else {
+			numberName += hundreds[Math.floor(num/100)] + ones3[num%10];
+		}
+	} else if (num >= 20) {
+		numberName += tens[Math.floor((num/10)%10)] + ones2[num%10];
+	} else if (num >= 10) {
+		numberName += (num==10&&(vers==0||vers==1)?ones[10]:teens[num%10]);
+	} else if (vers == 3) {
+		numberName += ones5[num%10];
+	} else if (vers == 2) {
+		numberName += ones4[num%10];
+	} else {
+		numberName += ones[num%10];
+	}
+	if (vers == 1) {
+		numberName += "a";
+	}
+	return numberName.trim();
+}
+function tier3number(logloglogNum) {
+// 1e(3e3000) -> log(3000.4771212547197)
+// killillion -> 3.477190319603795
+	var numberName = "one\u00A0";
+	var num = 0;
+	var illionNumber = 0;
+	var logNum = 0;
+	if (logloglogNum < 15) {
+		logloglogNum = Math.log10(10**(logloglogNum)-Math.log10(3));
+	}
+	var tier2illion = Math.floor(10**logloglogNum/3); // 1000 = killillion, 1m = meg-
+	if (tier2illion < 1e4) {
+				numArray = [Math.floor((10**(10**logloglogNum%3)*1000)%1000), Math.floor(10**(10**logloglogNum%3))];
+		if (tier2illion < 1e6 && numArray[0] != 0) {k=1} else {k=0};
+		for (i=0; i<=k; i++) {
+			illionArray = [Math.floor(tier2illion%1000), Math.floor((tier2illion/1000)%1000)]; // ones, thousands, millions
+			numberName += "<font class=\"n1\">" + tier1illionPrefix(Math.floor(numArray[1-i]), 2) + "</font>"; // T1 prefix
+			
+			if (illionArray[1] > 0) {
+				if (illionArray[0] > 0) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[1], 2) + "</font><font class=\"n3\">killa</font>";
+				} else if (i!=k) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[1], 2) + "</font><font class=\"n3\">killo</font>";
+				} else {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[1], 2) + "</font><font class=\"n3\">kill</font>";
+				}
+			}
+			if (illionArray[0] > 0) {
+				if (i != k) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[0], 1) + "</font>";
+				} else {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[0], 0) + "</font>";
+				}
+			}
+			if (numArray[0] != 0 && i != k) {
+				numberName += "-<br>";
+			}
+			tier2illion--;
+		}
+		numberName.replace("<br><br>","<br>");// todo
+	} else if (tier2illion < 1e12) {
+		numArray = [Math.floor((10**(10**logloglogNum%3)*1000)%1000), Math.floor(10**(10**logloglogNum%3))];
+		if (tier2illion < 1e6 && numArray[0] != 0) {k=1} else {k=0};
+		for (i=0; i<=k; i++) {
+			illionArray = [Math.floor(tier2illion%1000), Math.floor((tier2illion/1000)%1000), Math.floor((tier2illion/1e6)%1000), Math.floor((tier2illion/1e9)%1000)]; // ones, thousands, millions
+			numberName += "<font class=\"n1\">" + tier1illionPrefix(Math.floor(numArray[1-i]), 2) + "</font>"; // T1 prefix
+			if (tier2illion >= 1e3) {
+				if (Math.floor(numArray[1-i]) > 1) {numberName += "-"};
+				numberName += "<br>"
+			}
+			
+			if (illionArray[3] > 0) {
+				if (illionArray[2] > 0 || illionArray[1] > 0 || illionArray[0] > 0) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[3], 2) + "</font><font class=\"n3\">giga</font>";
+				} else if (i!=k) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[3], 2) + "</font><font class=\"n3\">gigo</font>";
+				} else {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[3], 2) + "</font><font class=\"n3\">gig</font>";
+				}
+			}
+			if (illionArray[2] > 0) {
+				if (illionArray[1] > 0 || illionArray[0] > 0) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[2], 2) + "</font><font class=\"n3\">mega</font>";
+				} else if (i!=k) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[2], 2) + "</font><font class=\"n3\">mego</font>";
+				} else {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[2], 2) + "</font><font class=\"n3\">meg</font>";
+				}
+			}
+			if (illionArray[1] > 0) {
+				if (illionArray[0] > 0) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[1], 2) + "</font><font class=\"n3\">killa</font>";
+				} else if (i!=k) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[1], 2) + "</font><font class=\"n3\">killo</font>";
+				} else {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[1], 2) + "</font><font class=\"n3\">kill</font>";
+				}
+			}
+			if (illionArray[0] > 0) {
+				if (i != k) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[0], 1) + "</font>";
+				} else {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(illionArray[0], 0) + "</font>";
+				}
+			}
+			if (numArray[0] != 0 && i != k) {
+				numberName += "-<br>";
+			}
+			tier2illion--;
+		}
+		numberName.replace("<br><br>","<br>");
+	} else {
+		var tier3illion = logloglogNum-Math.log10(3); // 9 = gigillion
+		if (tier3illion >= 3000) {
+			return "";
+		}
+		numArray = [Math.floor(10**(tier3illion%3+9)%1000), Math.floor(10**(tier3illion%3+6)%1000), Math.floor(10**(tier3illion%3+3)%1000), Math.floor(10**(tier3illion%3))];
+		illionArray = [Math.floor(tier3illion/3-3), Math.floor(tier3illion/3-2), Math.floor(tier3illion/3-1), Math.floor(tier3illion/3)];
+		
+		if ((numArray[0] == 0 || tier3illion >= 60) && numArray[1] == 0 && numArray[2] == 0) {
+			numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[3], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[3], 0) + "</font>";
+		} else {
+			numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[3], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[3], 1) + "</font>";
+		}
+		if (numArray[2] != 0) {
+			if ((numArray[0] == 0 || tier3illion >= 60) && numArray[1] == 0) {
+				numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[2], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[2], 0) + "</font>";
+			} else {
+				numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[2], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[2], 1) + "</font>";
+			}
+		}
+		if (tier3illion < 60) {
+			if (numArray[1] != 0) {
+				if (numArray[0] == 0) {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[1], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[1], 0) + "</font>";
+				} else {
+					numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[1], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[1], 1) + "</font>";
+				}
+			}
+			if (numArray[0] != 0) {
+				numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[0], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[0], 0) + "</font>";
+			}
+		} else {
+			if (numArray[1] != 0) {
+				numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[1], 2) + "</font><font class=\"n3\">" + tier3illionPrefix(illionArray[1], 0) + "</font>";
+			}
+		}
+	}
+	return (numberName+"<font class=\"n1\">illion</font>").trim();
+}
+function tier4illionPrefix(num, vers) {
+// vers = 0: right before illion, 1: tier-2 separator, 2: tier-3 separator
+	var nums = ["","kal","mej","gij","ast","lun","ferm","jov","sol","bet","gloc","gax","sup","vers","mult"];
+	var nums2 = ["","al","ej","ij","ast","un","erm","ov","ol","et","oc","ax","up","ers","ult"];
+	var numberName = "";
+	num = Math.floor(num);
+	if (num > 19 || num <= 0) {
+		return "";
+	}
+	if (vers == 0) {
+		return nums[num];
+	} else if (vers == 1) {
+		return nums2[num];
+	}
+}
+function tier4number(loglogloglogNum) {
+	var numberName = "one\u00A0";
+	var num = 0;
+	var illionNumber = 0;
+	var logNum = 0;
+	if (loglogloglogNum < 15) {
+		loglogloglogNum = Math.log10(10**(loglogloglogNum)-Math.log10(3));
+	}
+	var tier3illion = Math.floor(10**loglogloglogNum/3); // 1000 = kalillion, 1m = mej-
+	if (tier3illion < 1e4) {
+		numArray = [Math.floor((10**(10**loglogloglogNum%3)*1000)%1000), Math.floor(10**(10**loglogloglogNum%3))];
+		if (tier3illion < 1e6 && numArray[0] != 0) {k=1} else {k=0};
+		for (i=0; i<=k; i++) {
+			illionArray = [Math.floor(tier3illion%1000), Math.floor((tier3illion/1000)%1000)]; // ones, thousands
+			
+			numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[1-i], 2) + "</font>"; // T2 prefix
+			//if (numArray[1-i] > 1) {numberName += "-"};
+			//numberName += "<br>";
+			
+			if (illionArray[1] > 0) {
+				if (illionArray[1] > 1) {
+					numberName += "<font class=\"n3\">" + tier3illionPrefix(illionArray[1], 2) + "</font><font class=\"n4\">al</font>";
+				} else {
+					numberName += "<font class=\"n4\">kal</font>";
+				}
+			}
+			if (illionArray[0] > 0) {
+				numberName += "<font class=\"n3\">" + tier3illionPrefix(illionArray[0], 3) + "</font>";
+			}
+			if (i != k && numArray[0] > 0) {
+				numberName += "<font class=\"n3\">a</font>";
+			}
+			tier3illion--;
+		}
+	} else if (tier3illion < 1e12) {
+		numArray = [Math.floor((10**(10**loglogloglogNum%3)*1000)%1000), Math.floor(10**(10**loglogloglogNum%3))];
+		if (tier3illion < 1e6 && numArray[0] != 0) {k=1} else {k=0};
+		for (i=0; i<=k; i++) {
+			illionArray = [Math.floor(tier3illion%1000), Math.floor((tier3illion/1000)%1000), Math.floor((tier3illion/1e6)%1000), Math.floor(tier3illion/1e9)]; // ones, thousands, millions
+			if (tier3illion < 1e12) {
+				numberName += "<font class=\"n2\">" + tier2illionPrefix(numArray[1-i], 2) + "</font>"; // T2 prefix
+				if (numArray[1-i] > 1) {numberName += "-"};
+				numberName += "<br>";
+			}
+			if (illionArray[3] > 0) {
+				if (illionArray[3] > 1) {
+					numberName += "<font class=\"n3\">" + tier3illionPrefix(illionArray[3], 2) + "</font><font class=\"n4\">ij</font>";
+				} else {
+					numberName += "<font class=\"n4\">gij</font>";
+				}
+				if (illionArray[1] > 0 || illionArray[2] > 0 || !([undefined,'e','i','o'].includes(tier3illionPrefix(illionArray[0], 3)[0]))) {
+					numberName += "<font class=\"n4\">i</font>";
+				}
+			}
+			if (illionArray[2] > 0) {
+				if (illionArray[2] > 1) {
+					numberName += "<font class=\"n3\">" + tier3illionPrefix(illionArray[2], 2) + "</font><font class=\"n4\">ej</font>";
+				} else {
+					numberName += "<font class=\"n4\">mej</font>";
+				}
+				if (illionArray[1] > 0 || !([undefined,'e','i','o'].includes(tier3illionPrefix(illionArray[0], 3)[0]))) {
+					numberName += "<font class=\"n4\">i</font>";
+				}
+			}
+			if (illionArray[1] > 0) {
+				if (illionArray[1] > 1) {
+					numberName += "<font class=\"n3\">" + tier3illionPrefix(illionArray[1], 2) + "</font><font class=\"n4\">al</font>";
+				} else {
+					numberName += "<font class=\"n4\">kal</font>";
+				}
+			}
+			if (illionArray[0] > 0) {
+				numberName += "<font class=\"n3\">" + tier3illionPrefix(illionArray[0], 3) + "</font>";
+			}
+			if (i != k && numArray[0] > 0) {
+				numberName += "<font class=\"n3\">a-</font><br>";
+			}
+			tier3illion--;
+		}
+	} else if (tier3illion < 1e45) {
+		var x = Math.floor(Math.log10(tier3illion)/3);
+		numArray = [Math.floor(10**(Math.log10(tier3illion)%3+9)%1000), Math.floor(10**(Math.log10(tier3illion)%3+6)%1000), Math.floor(10**(Math.log10(tier3illion)%3+3)%1000), Math.floor(10**(Math.log10(tier3illion)%3)%1000)];
+		illionArray = [x-3, x-2, x-1, x];
+		if (numArray[3] > 0) {
+			if (numArray[3] > 1) {
+				numberName += "<font class=\"n3\">" + tier3illionPrefix(numArray[3], 2) + ((numArray[3]==5||numArray[3]==7)&&illionArray[3]==9?"e-":"") + "</font><font class=\"n4\">" + tier4illionPrefix(illionArray[3], 1) + "</font>";
+			} else {
+				numberName += "<font class=\"n4\">" + tier4illionPrefix(illionArray[3], 0) + "</font>";
+			}
+			if (numArray[2] > 0 || numArray[1] > 0 || numArray[0] > 0) {
+				numberName += "<font class=\"n4\">i</font>";
+			}
+		}
+		if (numArray[2] > 0) {
+			if (numArray[2] > 1) {
+				numberName += "<font class=\"n3\">" + tier3illionPrefix(numArray[2], 2) + ((numArray[2]==5||numArray[2]==7)&&illionArray[2]==9?"e-":"") + "</font><font class=\"n4\">" + tier4illionPrefix(illionArray[2], 1) + "</font>";
+			} else {
+				numberName += "<font class=\"n4\">" + tier4illionPrefix(illionArray[2], 0) + "</font>";
+			}
+			if (numArray[1] > 0 || numArray[0] > 0) {
+				numberName += "<font class=\"n4\">i</font>";
+			}
+		}
+		if (numArray[1] > 0) {
+			if (numArray[1] > 1) {
+				numberName += "<font class=\"n3\">" + tier3illionPrefix(numArray[1], 2) + ((numArray[1]==5||numArray[1]==7)&&illionArray[1]==9?"e-":"") + "</font><font class=\"n4\">" + tier4illionPrefix(illionArray[1], 1) + "</font>";
+			} else {
+				numberName += "<font class=\"n4\">" + tier4illionPrefix(illionArray[1], 0) + "</font>";
+			}
+			if (numArray[0] > 0) {
+				numberName += "<font class=\"n4\">i</font>";
+			}
+		}
+		if (numArray[0] > 0) {
+			if (numArray[0] > 1) {
+				numberName += "<font class=\"n3\">" + tier3illionPrefix(numArray[0], 2) + ((numArray[0]==5||numArray[0]==7)&&illionArray[0]==9?"e-":"") + "</font><font class=\"n4\">" + tier4illionPrefix(illionArray[0], 1) + "</font>";
+			} else {
+				numberName += "<font class=\"n4\">" + tier4illionPrefix(illionArray[0], 0) + "</font>";
+			}
+		}
+	}
+	return (numberName+"<font class=\"n1\">illion</font>").trim();
+}
+
+function shortNumberFormat(num, n) { // n = 0 for normal numbers, n = 1 for 10^num
+	if (n == 0) {
+		if (num < 1e6) {
+			return Math.floor(num).toLocaleString();
+		} else if (num < 1e9) {
+			return (num/1e6).toFixed(2) + "M";
+		} else if (num < 1e12) {
+			return (num/1e9).toFixed(2) + "B";
+		} else if (num < 1e15) {
+			return (num/1e12).toFixed(2) + "T";
+		} else {
+			dp = 2;
+			e0 = (num / 10**Math.floor(Math.log10(num))).toFixed(dp);
+			e1 = Math.floor(Math.log10(num))
+			if (Number(e0) == 10) {
+				e0 = (1).toFixed(dp);
+				e1 += 1;
+			}
+			return e0 + "e" + e1;
+		}
+	} else {
+		if (num < 6) {
+			Math.floor(10**num).toLocaleString();
+		} else if (num < 9) {
+			return (10**(num-6)).toFixed(3) + "M";
+		} else if (num < 12) {
+			return (10**(num-9)).toFixed(3) + "B";
+		} else if (num < 15) {
+			return (10**(num-12)).toFixed(3) + "T";
+		} else if (num < 1e6) {
+			dp = (num < 1000 ? 2 : 0);
+			e0 = (10**(num%1)).toFixed(dp);
+			e1 = Math.floor(num);
+			if (Number(e0) == 10) {
+				e0 = (1).toFixed(dp);
+				e1 += 1;
+			}
+			return e0 + "e" + e1.toLocaleString();
+		} else if (num < 1e9) {
+			return "e" + (num/1e6).toFixed(3) + "M";
+		} else if (num < 1e12) {
+			return "e" + (num/1e9).toFixed(3) + "B";
+		} else if (num < 1e15) {
+			return "e" + (num/1e12).toFixed(3) + "T";
+		} else {
+			return "e" + (num / 10**Math.floor(Math.log10(num))).toFixed(2) + "e" + Math.floor(Math.log10(num));
+		}
+	}
+}
+
+function valueNumber(t) {
+	if (start_date-Date.now() > 0) {
+		document.getElementById("progressPercent").innerHTML = "Not started yet.";
+		document.getElementById("bar2").style.width = "0%";
+		document.title = "Numbers increasing"
+		return "";
+	}
+	title_bar = " - Numbers increasing";
+	
+	var x = 10*(t+1e4)**0.75-1e4+t**1.1/100;
+	
+	if (x < 30000) {
+		nnn = (x/1000)**2 + x/300;
+		document.title = shortNumberFormat(nnn, 0) + title_bar;
+		barFillAmount = nnn%1; // bar fill
+		document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+		document.getElementById("bar2").style.backgroundColor = "#888";
+		document.getElementById("progressPercent").innerHTML = "Next number: " + (barFillAmount*100).toFixed(3)+"%";
+		return tier0number((x/1000)**2 + x/300); // up to 10^3
+	} else if (x < 300000) {
+		i = (x-30000)/270000
+		nnn = (3 + 7*i); // logNumber
+		document.title = shortNumberFormat(10**nnn, 0) + title_bar;
+		if (nnn < 6) { // bar fill
+			barFillAmount = 10**nnn%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#888";
+			document.getElementById("progressPercent").innerHTML = "Next number: " + (barFillAmount*100).toFixed(2)+"%";
+		} else {
+			barFillAmount = nnn/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#880";
+			document.getElementById("progressPercent").innerHTML = "Next illion: " + (barFillAmount*100).toFixed(6)+"%";
+		}
+		return tier1number(3 + 7*i); // up to 10^10
+	} else if (x < 2300000) {
+		i = (x-300000)/2000000
+		nnn = 10**10**i;
+		if (nnn < 15) {
+			document.title = shortNumberFormat(10**nnn, 0) + title_bar;
+		} else {
+			document.title = shortNumberFormat(nnn, 1) + title_bar;
+		}
+		
+		if (nnn < 3e6+3) { // bar fill
+			dec_places = Math.max(2, 6 - Math.floor(Math.log10((nnn-3)/3)));
+			barFillAmount = nnn/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#880";
+			document.getElementById("progressPercent").innerHTML = "Next illion: " + (barFillAmount*100).toFixed(dec_places)+"%";
+		} else {
+			barFillAmount = Math.log10(nnn/3-1)/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#080";
+			document.getElementById("progressPercent").innerHTML = "Next tier-2 illion: " + (barFillAmount*100).toFixed(6)+"%";
+		}
+		
+		if (nnn < 3003) {
+			return tier1number(nnn);
+		} else {
+			return tier2number(10**i);
+		} // from 10^10 to 10^^3
+
+	} else if (x < 5400000) {
+		i = (x-2300000)/3100000
+		nnn = 10**(((i+1)**2-1)/3);
+		document.title = "e" + shortNumberFormat(10**nnn, 1) + title_bar;
+		
+		if (10**nnn < 3e6+0.477121254719662) { // bar fill
+			dec_places = Math.max(2, 6 - Math.floor(Math.log10((10**nnn - 0.477121254719662)/3)));
+			barFillAmount = (10**nnn-0.477121254719662)/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#080";
+			document.getElementById("progressPercent").innerHTML = "Next tier-2 illion: " + (barFillAmount*100).toFixed(dec_places)+"%";
+		} else {
+			barFillAmount = Math.log10((10**nnn-0.477121254719662)/3)/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#07b";
+			document.getElementById("progressPercent").innerHTML = "Next tier-3 illion: " + (barFillAmount*100).toFixed(6)+"%";
+		}
+
+		if (10**nnn < 3000.47712125471966) {
+			return tier2number(10**nnn);
+		} else {
+			return tier3number(nnn);
+		} // from 10^^3 to 10^^4
+	} else if (x < 9000000) {
+		i = (x-5400000)/3600000
+		nnn = 10**(((i+1)**2-1)/3);
+		document.title = "ee" + shortNumberFormat(10**nnn, 1) + title_bar;
+		
+		if (10**nnn < 3e6+0.477121254719662) { // bar fill
+			dec_places = Math.max(2, 6 - Math.floor(Math.log10((10**nnn - 0.477121254719662)/3)));
+			barFillAmount = (10**nnn-0.477121254719662)/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#07b";
+			document.getElementById("progressPercent").innerHTML = "Next tier-3 illion: " + (barFillAmount*100).toFixed(dec_places)+"%";
+		} else {
+			barFillAmount = Math.log10((10**nnn-0.477121254719662)/3)/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#a0a";
+			document.getElementById("progressPercent").innerHTML = "Next tier-4 illion: " + (barFillAmount*100).toFixed(6)+"%";
+		}
+
+		if (10**nnn < 3000.47712125471966) {
+			return tier3number(10**nnn);
+		} else {
+			return tier4number(nnn);
+		} // from 10^^4 to 10^^5
+	} else {
+		i = (x-9000000)/6000000
+		nnn = 10**i;
+		if (10**nnn < 45.477121254719662) {
+			document.title = "eee" + shortNumberFormat(10**nnn, 1) + title_bar;
+			
+			barFillAmount = (10**nnn-0.477121254719662)/3%1;
+			document.getElementById("bar2").style.width = barFillAmount*100 + "%";
+			document.getElementById("bar2").style.backgroundColor = "#a0a";
+			document.getElementById("progressPercent").innerHTML = 
+				(10**nnn < 42.477121254719662 ? "Next tier-4 illion: " : "To the end: ") + 
+				(barFillAmount*100).toFixed(6)+"%";
+			
+			return tier4number(10**nnn);
+		}
+	}
+	document.title = "eee" + shortNumberFormat(3e45, 0) + title_bar;
+	document.getElementById("bar2").style.width = "0%";
+	document.getElementById("progressPercent").innerHTML = "";
+	return "<center>We have reached the end.<br><font size=\"5\">Thanks to everyone that watched the numbers increase for 12 years.</font></center>";
+}
+function valueNumber2(t) {
+	if (start_date-Date.now() > 0) return "";
+	
+	var x = 10*(t+1e4)**0.75-1e4+t**1.1/100;
+	if (x < 30000) {
+		return Math.floor((x/1000)**2 + x/300).toLocaleString(); // up to 10^3
+	} else if (x < 300000) {
+		i = (x-30000)/270000
+		return Math.floor(10**(3 + 7*i)).toLocaleString(); // up to 10^10
+	} else if (x < 2300000) {
+		i = (x-300000)/2000000
+		if (10**10**i < 21) {
+			return Math.floor(10**10**10**i).toLocaleString();
+		} else {
+			return (10**((10**10**i)%1)).toFixed(15).slice(0, 10**i>=8?1:11-10**i) + " × 10<sup>" + Math.floor(10**10**i).toLocaleString() + "</sup>";
+		} // from 10^10 to 10^^3
+	} else if (x < 5400000) {
+		i = (x-2300000)/3100000
+		i = ((i+1)**2-1)/3;
+		if (10**10**i < 21) {
+			return (10**10**i<15 ? (10**((10**10**10**i)%1)).toFixed(15).slice(0, 1) + " × ":"") + 
+			"10<sup>" + Math.floor(10**10**10**i).toLocaleString() + "</sup>";
+		} else {
+			return "10<sup>" + (10**((10**10**i)%1)).toFixed(15).slice(0, 10**i>=8?1:11-10**i) + " × 10<sup>" + Math.floor(10**10**i).toLocaleString() + "</sup></sup>";
+		} // from 10^^3 to 10^^4
+	} else if (x < 9000000) {
+		i = (x-5400000)/3600000
+		i = ((i+1)**2-1)/3;
+		if (10**10**i < 21) {
+			return "10<sup>" + (10**10**i<15 ? (10**((10**10**10**i)%1)).toFixed(15).slice(0, 1) + " × ":"") + 
+			"10<sup>" + Math.floor(10**10**10**i).toLocaleString() + "</sup></sup>";
+		} else {
+			return "10<sup>10<sup>" + (10**((10**10**i)%1)).toFixed(15).slice(0, 10**i>=8?1:11-10**i) + " × 10<sup>" + Math.floor(10**10**i).toLocaleString() + "</sup></sup></sup>";
+		} // from 10^^4 to 10^^5
+	} else {
+		i = (x-9000000)/6000000
+		if (10**10**i < 21) {
+			return "10<sup>10<sup>" + (10**10**i<15 ? (10**((10**10**10**i)%1)).toFixed(15).slice(0, 1) + " × ":"") +
+			"10<sup>" + Math.floor(Math.min(10**10**10**i, 3e45)).toLocaleString() + "</sup></sup></sup>";
+		} else {
+			imin = Math.min(10**10**i, 45.477121254719662);
+			return "10<sup>10<sup>10<sup>" + (10**(imin%1)).toFixed(15).slice(0, 10**i>=8?1:11-10**i) + " × 10<sup>" + Math.floor(imin).toLocaleString() + "</sup></sup></sup></sup>";
+		}
+	}
+	return "";
+}
+
+start_date = new Date(Date.UTC(2026)).getTime();
+end_date = new Date(Date.UTC(2038)).getTime();
+
+function secondsToTime(secs) {
+	a1 = secs/(60*60*24*365.25); // y
+	b1 = Math.floor(a1);
+	a2 = (a1-b1)*365.25;
+	b2 = Math.floor(a2);
+	a3 = (a2-b2)*24;
+	b3 = Math.floor(a3);
+	a4 = (a3-b3)*60;
+	b4 = Math.floor(a4);
+	a5 = (a4-b4)*60;
+	b5 = a5.toFixed(2);
+	
+	if (a1 >= 1) {
+		return b1 + "y " + b2 + "d " + b3 + "h " + b4 + "m " + b5 + "s";
+	} else if (a2 >= 1) {
+		return b2 + "d " + b3 + "h " + b4 + "m " + b5 + "s";
+	} else if (a3 >= 1) {
+		return b3 + "h " + b4 + "m " + b5 + "s";
+	} else if (a4 >= 1) {
+		return b4 + "m " + b5 + "s";
+	} else {
+		return b5 + "s";
+	}
+}
+
+function displayOutput() {
+	t = (Date.now()-start_date) / (end_date-start_date) * 59416786.9968;
+	t = Math.min(Math.max(t+speedMultiplier*0, 0),59416786.9968); // 59416786.99677
+	
+	document.getElementById("aa2").innerHTML = '<b><font face="sans-serif" size="6" id="number" class="n0"><b>' + valueNumber(t) + "</font>";
+	
+	// Shows the number
+	document.getElementById("aa1").innerHTML = '<b><font face="sans-serif" size="7" id="number2" class="n5"><b>' + valueNumber2(t) + "</font><br>";
+		
+	// Show time spent
+	if (t > 0) {
+		document.getElementById("timeSpent").innerHTML =
+			(end_date-Date.now() < 0 ? "Finished: " + secondsToTime((Date.now()-end_date)/1000) + " ago<br>" : "") +
+			"Time Elapsed: " + secondsToTime(Math.min(Math.max(Date.now()-start_date,0)/1000, (end_date-start_date)/1000)) +
+			"<br>Time Remaining: " + secondsToTime(Math.max(end_date-Date.now(),0)/1000);
+	} else {
+		document.getElementById("timeSpent").innerHTML =
+			"Will start in: " + secondsToTime((start_date-Date.now())/1000) +
+			"<br>Will last for: " + secondsToTime((end_date-start_date)/1000);
+	}
+	
+	}
+setInterval(displayOutput, 1);
+
+</script>
+</body>
+</html>
