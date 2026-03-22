@@ -7,9 +7,9 @@ Speed: <input type="number" value=1 id="clockspeed"></input>
 <p><font size="5" id="number"></font></p>
 <p><font size="5" id="time"></font></p>
 <script>
-var t=0;
-var speed = Number(document.getElementById("clockspeed").value);
-var tReduce=0;
+var t = 0;
+var speed = 1;
+var tReduce = 0;
 var maxChars = 0;
 function save() {
 	localStorage.setItem('lanlngi', JSON.stringify(t));
@@ -216,8 +216,14 @@ function displayNumber() {
 			finalNumber = convertToLAN(evaluateLinArray(linArrayEntries(Math.min(2+97**((t-6000000-tReduce)/50000000),99))));
 		}
 	}
+	if (isNaN(document.getElementById("speedMult").value)) {
+		speed = 0;
+		} else {
+		speed = Number(document.getElementById("speedMult").value);
+		}
+	}
 	if (document.getElementById("numberRunning").checked) {
-		t+=speed;
+		t += speed;
 	}
 	finalNumber // for unan
 	document.getElementById("number").innerHTML = finalNumber;
