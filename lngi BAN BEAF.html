@@ -3,6 +3,7 @@
 <body>
 Running: <input type="checkbox" id="numberRunning" checked></input>
 <p><font size="5" id="number"></font></p>
+<p><font size="5" id="time"></font></p>
 <script>
 var t=0;
 var tReduce=0;
@@ -217,6 +218,7 @@ function displayNumber() {
 	}
 	finalNumber // for unan
 	document.getElementById("number").innerHTML = finalNumber;
+	document.getElementById("time").innerHTML = t;
 }
 setInterval(displayNumber, 16);
 setInterval(save, 100);
