@@ -801,13 +801,13 @@ while (j > 1) {
 // beforeSANArray + leftPartialArray + Separator + rightPartialArray + afterSANArray
 
 function solve() {
-startTime = new Date().getTime();
+startTime = performance.now();
 getSANmode(document.getElementById("input").value);
 finalResult = calculate();
 	finalResult = simplify(rule3(rule3atBaseLayer(finalResult)));
 SANmessage += finalResult;
 SANmessage = simplify(SANmessage);
-elapsedTime = new Date().getTime() - startTime;
+elapsedTime = performance.now() - startTime;
 var timeSeconds;
 var timeMinutes;
 var timeHours;
@@ -839,7 +839,7 @@ if (SANmode == 2 || SANmode == 3) {
 	timeHours = Math.floor(elapsedTime/3600000);
 	SANmessage += "<br><br>Solving time: ";
 	if (elapsedTime < 60000) {
-		SANmessage += (elapsedTime/1000).toFixed(3) + " seconds";
+		SANmessage += (elapsedTime/1000).toFixed(6) + " seconds";
 	} else if (elapsedTime < 3600000) {
 		SANmessage += timeMinutes + " minute" + (timeMinutes==1 ? ", " : "s, ") + 
 		timeSeconds + " second" + (timeSeconds==1 ? "" : "s");
